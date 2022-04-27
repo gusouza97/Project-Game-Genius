@@ -2,16 +2,10 @@
     'use strict';
 
     // MAIN VARIABLES
-    let initialize = false
     let orderRound = new Array()
     let orderPlayer = new Array()
-    let timer;
-    let check;
-    let piscou;
-    let loadLoop;
-    let recebeClique = false;
     let score = 0
-    let gameOver;
+
     // 0 -> Green
     // 1 -> Red
     // 2 -> Yellow
@@ -49,131 +43,92 @@
     // FUNCTIONS
     // Funcao para iniciar o game
     function Start() {
-        initialize = true
-        gameOver = false
-        timer = 1000;
+        alert("Bem vindo ao Genis, iniciando um novo jogo!")
+
+        score = 0
+        
         gamePanel.style.display = "flex"
         btnPlay.style.display = "none"
 
-        // Gerando Sequencia da Rodada
-        orderRound.push(GenerateNumber());
-        orderRound.push(GenerateNumber());
-        orderRound.push(GenerateNumber());
-        orderRound.push(GenerateNumber());
-
-        for (let i = 0; i < orderRound.length; i++) {
-            check = true;
-            Counter(orderRound[i])
-        }
-
-
-        // Ativando o recebimento dos dados
-        if (recebeClique != true) {
-
-        }
-
-        if (orderRound.length == orderPlayer.length) {
-            recebeClique = false;
-            ComparaResposta();
-        }
-
+        nextLevel();
     }
 
     // Funcao para gerar numero da rodada
     function GenerateNumber() {
         let value = Math.floor(Math.random() * 4)
-        return value
+        orderRound.push(value)
+        orderPlayer = []
+
+        for (let i in orderRound) {
+            let elementColor = createColorElement(orderRound[i])
+            lightColor(elementColor, Number(i) + 1)
+        }
     }
 
     // Funcao para piscar as luzes
-    function PiscarLuzes(valor) {
-        switch (valor) {
-            case 0:
-                btnGreen.style.opacity = "0.3";
-                check = false;
-                setTimeout(() => {
-                    piscou = piscou + 1;
-                    btnGreen.style.opacity = "1";
-                    check = true;
-                }, timer)
+    function lightColor(element, timer) {
+        timer = timer * 500
 
-                break;
-
-            case 1:
-                btnRed.style.opacity = "0.3";
-                check = false;
-                setTimeout(() => {
-                    piscou = piscou + 1;
-                    btnRed.style.opacity = "1";
-                    check = true;
-                }, timer)
-                break;
-
-            case 2:
-                btnYellow.style.opacity = "0.3";
-                check = false;
-                setTimeout(() => {
-                    piscou = piscou + 1;
-                    btnYellow.style.opacity = "1";
-                    check = true;
-                }, timer)
-                break;
-
-            case 3:
-                btnBlue.style.opacity = "0.3";
-                check = false;
-                setTimeout(() => {
-                    piscou = piscou + 1;
-                    btnBlue.style.opacity = "1";
-                    check = true;
-                }, timer)
-                break;
-        }
-        recebeClique = false;
-    }
-
-
-
-    // Recebendo Dados
-    function ReceberDados(id) {
-        if (recebeClique == true) {
-            orderPlayer.push(id)
-            console.log(orderPlayer)
-        }
+        setTimeout(() => {
+            element.style.opacity = "0.3";
+        }, timer);
+        setTimeout(() => {
+            element.style.opacity = "1";
+        })
     }
 
 
     // Comparando as respostas
     function ComparaResposta() {
-        for (let i = 0; i < orderRound.length; i++) {
+        for (let i in orderPlayer) {
             if (orderRound[i] != orderPlayer[i]) {
-                gameOver = true;
-                console.log("Game Over")
+                gameOver();
+                break;
             }
+        }
+        if (orderRound.length == orderPlayer.length) {
+            alert(`Pontuacao: ${score}\nVoce acertou! Iniciando proximo nivel`)
+            nextLevel();
         }
     }
 
-    // Funcao que auxilia no piscar das luzues
-    function Counter(valor) {
-
-        console.log(valor)
+    // Recebendo Dados
+    function ReceberDados(id) {
+        orderPlayer.push(id)
+        createColorElement(id).style.opacity = "0.3";
 
         setTimeout(() => {
-            if(check == true){
-                console.log(valor)
-                PiscarLuzes(valor);
-            }
-        }, timer)
-        
-        
-
-        //Bloqueando o Timeout
-        if (piscou == orderRound.length - 1) {
-            return;
-        }
-
-        setTimeout(Counter, 1000);
+            createColorElement(id).style.opacity = "1";
+            ComparaResposta();
+        }, 250)
     }
 
+    // Retorna a cor
+    function createColorElement(color){
+        if(color == 0){
+            return btnGreen
+        }else if(color == 1){
+            return btnRed
+        }else if(color == 2){
+            return btnYellow
+        }else if(color == 3){
+            return btnBlue
+        }
+    }
+
+    // Funcao para proximo nivel
+    function nextLevel(){
+        score++;
+        GenerateNumber();
+    }
+
+    // Funcao para game over
+    function gameOver(){
+        alert(`Pontuacao: $(score)\nVoc perdeu o jogo!\nClique para iniciar novamente`)
+        orderRound = [];
+        orderPlayer = []
+
+        Start();
+    }
 
 })(window, document);
